@@ -31,6 +31,7 @@
         <okhttp.version>4.8.1</okhttp.version>
         <swagger-spring-boot-starter.version>1.9.0.RELEASE</swagger-spring-boot-starter.version>
         <elasticsearch.version>7.12.1</elasticsearch.version>
+        <knif4j.version>3.0.2</knif4j.version>
     </properties>
 
     <dependencyManagement>
@@ -169,6 +170,11 @@
                 <groupId>com.spring4all</groupId>
                 <artifactId>swagger-spring-boot-starter</artifactId>
                 <version>${swagger-spring-boot-starter.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.xiaoymin</groupId>
+                <artifactId>knife4j-spring-boot-starter</artifactId>
+                <version>${knif4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.elasticsearch.client</groupId>

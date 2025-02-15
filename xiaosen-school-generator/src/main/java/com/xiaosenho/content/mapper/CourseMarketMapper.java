@@ -1,7 +1,8 @@
-package com.xuecheng.content.mapper;
+package com.xiaosenho.content.mapper;
 
-import com.xuecheng.content.model.po.CourseMarket;
+import com.xiaosenho.content.model.po.CourseMarket;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.springframework.stereotype.Repository;
 
 /**
  * <p>
