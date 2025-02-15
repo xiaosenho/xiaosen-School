@@ -2,8 +2,10 @@ package com.xiaosenho.content.api;
 
 import com.xiaosenho.base.model.PageParams;
 import com.xiaosenho.base.model.PageResult;
+import com.xiaosenho.content.model.dto.CourseCategoryTreeDto;
 import com.xiaosenho.content.model.dto.QueryCourseParamsDto;
 import com.xiaosenho.content.model.po.CourseBase;
+import com.xiaosenho.content.model.po.CourseCategory;
 import com.xiaosenho.content.service.CourseBaseInfoService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Nullable;
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @author: 作者
