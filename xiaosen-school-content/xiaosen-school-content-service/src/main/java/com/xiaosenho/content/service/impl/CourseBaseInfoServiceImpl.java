@@ -11,12 +11,13 @@ import com.xiaosenho.base.model.PageResult;
 import com.xiaosenho.content.mapper.CourseBaseMapper;
 import com.xiaosenho.content.mapper.CourseCategoryMapper;
 import com.xiaosenho.content.mapper.CourseMarketMapper;
+import com.xiaosenho.content.mapper.TeachplanMediaMapper;
 import com.xiaosenho.content.model.dto.*;
-import com.xiaosenho.content.model.po.CourseBase;
-import com.xiaosenho.content.model.po.CourseCategory;
-import com.xiaosenho.content.model.po.CourseMarket;
+import com.xiaosenho.content.model.po.*;
 import com.xiaosenho.content.service.CourseBaseInfoService;
 import com.xiaosenho.content.service.CourseCategoryService;
+import com.xiaosenho.content.service.CourseTeacherService;
+import com.xiaosenho.content.service.TeachplanService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -38,6 +39,12 @@ public class CourseBaseInfoServiceImpl extends ServiceImpl<CourseBaseMapper,Cour
     private CourseMarketMapper courseMarketMapper;
     @Resource
     private CourseCategoryMapper courseCategoryMapper;
+    @Resource
+    private CourseTeacherService courseTeacherService;
+    @Resource
+    private TeachplanService teachplanService;
+    @Resource
+    private TeachplanMediaMapper teachplanMediaMapper;
 
     @Transactional
     @Override
@@ -154,5 +161,16 @@ public class CourseBaseInfoServiceImpl extends ServiceImpl<CourseBaseMapper,Cour
         saveCourseMakrket(courseMarket);
 
         return getCourseBaseInfo(editCourseBaseInfoDto.getId());
+    }
+    @Transactional
+    @Override
+    public void deleteCourseById(Long courseId) {
+        if(!removeById(courseId)){
+            ServiceException.cast("删除失败");
+        }
+        courseMarketMapper.deleteById(courseId);
+        courseTeacherService.remove(new QueryWrapper<CourseTeacher>().eq("course_id",courseId));
+        teachplanService.remove(new QueryWrapper<Teachplan>().eq("course_id",courseId));
+        teachplanMediaMapper.delete(new QueryWrapper<TeachplanMedia>().eq("course_id",courseId));
     }
 }
