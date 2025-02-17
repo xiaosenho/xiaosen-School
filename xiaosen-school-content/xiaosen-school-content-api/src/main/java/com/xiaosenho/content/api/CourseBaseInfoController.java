@@ -2,6 +2,8 @@ package com.xiaosenho.content.api;
 
 import com.xiaosenho.base.model.PageParams;
 import com.xiaosenho.base.model.PageResult;
+import com.xiaosenho.content.model.dto.AddCourseBaseInfoDto;
+import com.xiaosenho.content.model.dto.CourseBaseInfoDto;
 import com.xiaosenho.content.model.dto.CourseCategoryTreeDto;
 import com.xiaosenho.content.model.dto.QueryCourseParamsDto;
 import com.xiaosenho.content.model.po.CourseBase;
@@ -30,5 +32,13 @@ public class CourseBaseInfoController {
     @ApiOperation("课程分页查询")
     public PageResult<CourseBase> list(PageParams pageParams, @RequestBody(required = false) QueryCourseParamsDto queryCourseParamsDto){
         return courseBaseInfoService.queryCourseBaseList(pageParams, queryCourseParamsDto);
+    }
+
+    @PostMapping("/course")
+    @ApiOperation("新增课程")
+    public CourseBaseInfoDto save(@RequestBody AddCourseBaseInfoDto addCourseBaseInfoDto){
+        //TODO 登录功能，机构id获取
+        long companyId = 1232141425L;
+        return courseBaseInfoService.createCourseBase(companyId,addCourseBaseInfoDto);
     }
 }
