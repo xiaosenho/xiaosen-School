@@ -17,7 +17,7 @@ import java.util.List;
  * @Description:
  */
 @RestController
-@Api(value = "教学计划编辑接口")
+@Api(tags = "教学计划编辑接口")
 @Slf4j
 public class TeachPlanController {
     @Resource

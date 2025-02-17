@@ -15,7 +15,7 @@ import java.util.List;
  * @Description:
  */
 @RestController
-@Api("课程教师管理接口")
+@Api(tags = "课程教师管理接口")
 public class CourseTeacherController {
     @Resource
     private CourseTeacherService courseTeacherService;
