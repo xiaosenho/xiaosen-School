@@ -1,5 +1,6 @@
 package com.xiaosenho.content.model.dto;
 
+import com.xiaosenho.base.exception.ValidationGroups;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -16,7 +17,8 @@ import javax.validation.constraints.Size;
 @ApiModel(value = "添加课程基本信息")
 public class AddCourseBaseInfoDto {
 
-    @NotEmpty(message = "课程名称不能为空")
+    @NotEmpty(message = "新增课程名称不能为空",groups = ValidationGroups.Insert.class)
+    @NotEmpty(message = "修改课程名称不能为空",groups = ValidationGroups.Update.class)
     @ApiModelProperty(value = "课程名称", required = true)
     private String name;
 
@@ -64,6 +66,7 @@ public class AddCourseBaseInfoDto {
 
     @ApiModelProperty(value = "微信")
     private String wechat;
+
     @ApiModelProperty(value = "电话")
     private String phone;
 
