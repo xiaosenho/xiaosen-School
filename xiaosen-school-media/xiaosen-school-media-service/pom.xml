@@ -3,25 +3,25 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>xiaosen-school-system</artifactId>
+        <artifactId>xiaosen-school-media</artifactId>
         <groupId>com.xiaosenho</groupId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
-    <artifactId>xiaosen-school-system-service</artifactId>
-    <name>xiaosen-school-system-service</name>
-    <description>xiaosen-school-system-service</description>
+    <artifactId>xiaosen-school-media-service</artifactId>
+    <name>xiaosen-school-media-service</name>
+    <description>xiaosen-school-media-service</description>
 
     <dependencies>
-        <dependency>
-            <groupId>com.xiaosenho</groupId>
-            <artifactId>xiaosen-school-system-model</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.xiaosenho</groupId>
+            <artifactId>xiaosen-school-media-model</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
         <!-- MySQL 驱动 -->
         <dependency>
             <groupId>mysql</groupId>
@@ -57,8 +57,14 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-log4j2</artifactId>
         </dependency>
-
-
+        <dependency>
+            <groupId>io.minio</groupId>
+            <artifactId>minio</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

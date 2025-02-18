@@ -14,7 +14,7 @@ import javax.validation.constraints.Size;
  * @Description:
  */
 @Data
-@ApiModel(value = "添加课程基本信息")
+@ApiModel(value = "AddCourseBaseInfoDto",description = "添加课程基本信息")
 public class AddCourseBaseInfoDto {
 
     @NotEmpty(message = "新增课程名称不能为空",groups = ValidationGroups.Insert.class)
