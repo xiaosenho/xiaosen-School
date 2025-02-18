@@ -22,9 +22,69 @@
         <result column="change_date" property="changeDate" />
     </resultMap>
 
+    <resultMap id="TeachplanDtoMap" type="com.xiaosenho.content.model.dto.TeachPlanDto">
+        <id column="teachplan_id" property="id" />
+        <result column="teachplan_name" property="pname" />
+        <result column="teachplan_parentid" property="parentid" />
+        <result column="teachplan_grade" property="grade" />
+        <result column="teachplan_media_type" property="mediaType" />
+        <result column="teachplan_start_time" property="startTime" />
+        <result column="teachplan_end_time" property="endTime" />
+        <result column="teachplan_description" property="description" />
+        <result column="teachplan_timelength" property="timelength" />
+        <result column="teachplan_orderby" property="orderby" />
+        <result column="teachplan_course_id" property="courseId" />
+        <result column="teachplan_course_pub_id" property="coursePubId" />
+        <result column="teachplan_status" property="status" />
+        <result column="teachplan_is_preview" property="isPreview" />
+        <result column="teachplan_create_date" property="createDate" />
+        <result column="teachplan_change_date" property="changeDate" />
+        <association property="teachplanMedia" javaType="com.xiaosenho.content.model.po.TeachplanMedia">
+            <id column="media_id" property="id" />
+            <result column="media_media_id" property="mediaId" />
+            <result column="media_teachplan_id" property="teachplanId" />
+            <result column="media_course_id" property="courseId" />
+            <result column="media_fileName" property="mediaFilename" />
+        </association>
+    </resultMap>
+
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         id, pname, parentid, grade, media_type, start_time, end_time, description, timelength, orderby, course_id, course_pub_id, status, is_preview, create_date, change_date
     </sql>
+
+    <!-- 查询课程计划树 -->
+    <select id="selectTreeNodes" resultMap="TeachplanDtoMap" parameterType="long">
+        with recursive t1 as (
+            select * from teachplan p where course_id = #{courseId} and p.parentid = 0
+            union all
+            select t.* from teachplan t inner join t1 on t1.id = t.parentid
+        )
+        select
+            t1.id as teachplan_id,
+            t1.pname as teachplan_name,
+            t1.parentid as teachplan_parentid,
+            t1.grade as teachplan_grade,
+            t1.media_type as teachplan_media_type,
+            t1.start_time as teachplan_start_time,
+            t1.end_time as teachplan_end_time,
+            t1.description as teachplan_description,
+            t1.timelength as teachplan_timelength,
+            t1.orderby as teachplan_orderby,
+            t1.course_id as teachplan_course_id,
+            t1.course_pub_id as teachplan_course_pub_id,
+            t1.status as teachplan_status,
+            t1.is_preview as teachplan_is_preview,
+            t1.create_date as teachplan_create_date,
+            t1.change_date as teachplan_change_date,
+            tm.id as media_id,
+            tm.media_id as media_media_id,
+            tm.teachplan_id as media_teachplan_id,
+            tm.course_id as media_course_id,
+            tm.media_fileName as media_fileName
+        from t1
+                 left join teachplan_media tm on tm.teachplan_id = t1.id
+        order by t1.parentid, t1.orderby
+    </select>
 
 </mapper>

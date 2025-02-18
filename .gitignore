@@ -24,5 +24,6 @@ target/
 /.nb-gradle/
 build/
 logs/
+api-test/
 ### VS Code ###
 .vscode/
