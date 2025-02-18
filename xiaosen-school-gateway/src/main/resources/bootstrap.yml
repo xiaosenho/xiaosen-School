@@ -1,0 +1,23 @@
+#微服务配置
+spring:
+  profiles:
+    active: dev #环境名
+  application:
+    name: gateway #服务名
+  cloud:
+    nacos:
+      server-addr: 106.54.193.108:8848
+      discovery: #服务注册
+        namespace: dev
+        group: xiaosen-school-project
+      config: #配置中心
+        #各配置文件的优先级：项目应用名配置文件 > 扩展配置文件  > 共享配置文件 > 本地配置文件
+        #私有配置文件，配置文件dataid由 服务名+${spring.profiles.active}(环境名)+file-extension组成
+        namespace: dev
+        group: xiaosen-school-project
+        file-extension: yaml
+        refresh-enabled: true
+        shared-configs: #共享配置文件
+          - data-id: logging-${spring.profiles.active}.yaml
+            group: xiaosen-school-common
+            refresh: true
