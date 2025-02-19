@@ -1,7 +1,7 @@
 package com.xiaosenho.base.config;
 
 import com.xiaosenho.base.exception.CommonError;
-import com.xiaosenho.base.exception.RestResponse;
+import com.xiaosenho.base.exception.RestExceptionResponse;
 import com.xiaosenho.base.exception.ServiceException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -27,21 +27,21 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ServiceException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)//响应状态码5**
-    public RestResponse customException(ServiceException e){
+    public RestExceptionResponse customException(ServiceException e){
         log.error("【系统异常】{}",e.getErrMessage(),e);
-        return new RestResponse(e.getErrMessage());
+        return new RestExceptionResponse(e.getErrMessage());
     }
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public RestResponse exception(Exception e) {
+    public RestExceptionResponse exception(Exception e) {
         log.error("【系统异常】{}",e.getMessage(),e);
-        return new RestResponse(CommonError.UNKOWN_ERROR.getErrMessage());
+        return new RestExceptionResponse(CommonError.UNKOWN_ERROR.getErrMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)//JSR303参数校验异常
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public RestResponse exception(MethodArgumentNotValidException e) {
+    public RestExceptionResponse exception(MethodArgumentNotValidException e) {
         BindingResult bindingResult = e.getBindingResult();
         List<String> errors = new ArrayList<>();
         bindingResult.getFieldErrors().stream().forEach(item ->{
@@ -49,6 +49,6 @@ public class GlobalExceptionHandler {
         });
         String errMsg = StringUtils.join(errors,",");
         log.error("【系统异常】{}",errMsg,e);
-        return new RestResponse(errMsg);
+        return new RestExceptionResponse(errMsg);
     }
 }

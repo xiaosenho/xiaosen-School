@@ -1,4 +1,4 @@
-package com.xiaosenho.content.constant;
+package com.xiaosenho.base.constant;
 
 /**
  * @author: 作者
