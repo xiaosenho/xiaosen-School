@@ -1,5 +1,6 @@
 package com.xiaosenho.content.api;
 
+import com.xiaosenho.content.model.dto.BindTeachplanMediaDto;
 import com.xiaosenho.content.model.dto.SaveTeachplanDto;
 import com.xiaosenho.content.model.dto.TeachPlanDto;
 import com.xiaosenho.content.service.TeachplanService;
@@ -25,25 +26,25 @@ public class TeachPlanController {
 
     @GetMapping("/teachplan/{courseId}/tree-nodes")
     @ApiOperation(value = "查询教学计划树形结构")
-    public List<TeachPlanDto> getTreeNodes(@PathVariable Long courseId){
+    public List<TeachPlanDto> getTreeNodes(@PathVariable Long courseId) {
         return teachPlanService.getTeachPlanTreeNodesById(courseId);
     }
 
     @PostMapping("/teachplan")
     @ApiOperation(value = "新增或修改教学计划")
-    public void addTeachPlan(@RequestBody SaveTeachplanDto addTeachPlanDto){
+    public void addTeachPlan(@RequestBody SaveTeachplanDto addTeachPlanDto) {
         teachPlanService.saveTeachPlan(addTeachPlanDto);
     }
 
     @DeleteMapping("/teachplan/{teachPlanId}")
     @ApiOperation(value = "删除教学计划")
-    public void deleteTeachPlan(@PathVariable Long teachPlanId){
+    public void deleteTeachPlan(@PathVariable Long teachPlanId) {
         teachPlanService.deleteTeachPlan(teachPlanId);
     }
 
     @PostMapping("/teachplan/movedown/{teachPlanId}")
     @ApiOperation(value = "向下移动")
-    public void moveDown(@PathVariable Long teachPlanId){
+    public void moveDown(@PathVariable Long teachPlanId) {
         teachPlanService.moveDown(teachPlanId);
     }
 
@@ -51,5 +52,11 @@ public class TeachPlanController {
     @ApiOperation(value = "向上移动")
     public void moveUp(@PathVariable Long teachPlanId) {
         teachPlanService.moveUp(teachPlanId);
+    }
+
+    @ApiOperation(value = "课程计划和媒资信息绑定")
+    @PostMapping("/teachplan/association/media")
+    public void associationMedia(@RequestBody BindTeachplanMediaDto bindTeachplanMediaDto) {
+        teachPlanService.associationMedia(bindTeachplanMediaDto);
     }
 }

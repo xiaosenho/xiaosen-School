@@ -1,6 +1,6 @@
 package com.xiaosenho.content.api;
 
-import com.xiaosenho.content.constant.ContentConstant;
+import com.xiaosenho.base.constant.ContentConstant;
 import com.xiaosenho.content.model.dto.CourseCategoryTreeDto;
 import com.xiaosenho.content.service.CourseCategoryService;
 import io.swagger.annotations.Api;
