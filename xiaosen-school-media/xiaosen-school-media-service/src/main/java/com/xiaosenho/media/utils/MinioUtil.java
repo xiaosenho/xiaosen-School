@@ -16,7 +16,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -114,7 +116,7 @@ public class MinioUtil {
                     .object(objectName)
                     .build();
             InputStream inputStream = minioClient.getObject(getObjectArgs);
-            File file = File.createTempFile("temp", extension);
+            File file = File.createTempFile("minio", extension);
             FileOutputStream fileOutputStream = new FileOutputStream(file);
             IOUtils.copy(inputStream, fileOutputStream);
             inputStream.close();
@@ -124,5 +126,17 @@ public class MinioUtil {
             log.error("从minio获取文件出错,videoFilesBucketName:,objectName:,错误原因:", bucketName, objectName, e.getMessage(), e);
             return null;
         }
+    }
+
+    public String getDefaultFolderPath() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String folder = sdf.format(new Date()).replace("-", "/") + "/";
+        return folder;
+    }
+
+    public String getChunkFileFolder(String fileMd5) {
+        String floder1 = String.valueOf(fileMd5.charAt(0));
+        String floder2 = String.valueOf(fileMd5.charAt(1));
+        return floder1 + "/" + floder2 + "/" ;
     }
 }

@@ -14,10 +14,12 @@ import com.xiaosenho.base.model.PageParams;
 import com.xiaosenho.base.model.PageResult;
 import com.xiaosenho.base.model.RestResponse;
 import com.xiaosenho.media.mapper.MediaFilesMapper;
+import com.xiaosenho.media.mapper.MediaProcessMapper;
 import com.xiaosenho.media.model.dto.QueryMediaParamsDto;
 import com.xiaosenho.media.model.dto.UploadFileParamsDto;
 import com.xiaosenho.media.model.dto.UploadFileResultDto;
 import com.xiaosenho.media.model.po.MediaFiles;
+import com.xiaosenho.media.model.po.MediaProcess;
 import com.xiaosenho.media.service.MediaFileService;
 import com.xiaosenho.media.utils.MinioUtil;
 import io.minio.ObjectWriteResponse;
@@ -65,6 +67,9 @@ public class MediaFileServiceImpl extends ServiceImpl<MediaFilesMapper,MediaFile
 
     @Value("${minio.bucket.videofiles}")
     private String videoFilesBucketName;//视频文件存储桶名
+
+    @Resource
+    private MediaProcessMapper mediaProcessMapper;
 
     //获取文件默认存储目录路径 年/月/日
     private String getDefaultFolderPath() {
@@ -119,7 +124,7 @@ public class MediaFileServiceImpl extends ServiceImpl<MediaFilesMapper,MediaFile
             ServiceException.cast("文件不存在");
         }
         String fileMd5 = getFileMd5(file);
-        String objectName = defaultFolderPath + fileMd5;
+        String objectName = defaultFolderPath + fileMd5 + "." + extension;
 
         //查询数据库中是否存在相同md5的文件
         MediaFiles mediaFiles = mediaFilesMapper.selectById(fileMd5);
@@ -128,6 +133,7 @@ public class MediaFileServiceImpl extends ServiceImpl<MediaFilesMapper,MediaFile
             BeanUtils.copyProperties(mediaFiles, uploadFileResultDto);
             return uploadFileResultDto;
         }
+
         //通过minio工具上传文件
         //由于存在网络IO，不能对整个方法使用@Transactional注解，否则长时间占用数据库连接
         boolean upload = minioUtil.upload(filesBucketName, objectName, filepath, mimeType);
@@ -177,7 +183,33 @@ public class MediaFileServiceImpl extends ServiceImpl<MediaFilesMapper,MediaFile
             ServiceException.cast("保存文件信息到数据库失败");
         }
         log.debug("保存文件信息到数据库成功,{}",mediaFiles.toString());
+        //保存文件信息到数据库待处理任务表中
+        boolean add = addMediaProcessToDB(mediaFiles);
         return mediaFiles;
+    }
+
+    /**
+     * 添加文件信息到待处理表中
+     * @param mediaFiles
+     * @return
+     */
+    private boolean addMediaProcessToDB(MediaFiles mediaFiles) {
+        //文件名称
+        String filename = mediaFiles.getFilename();
+        //文件扩展名
+        String exension = filename.substring(filename.lastIndexOf("."));
+        //文件mimeType
+        String mimeType = getMimeType(exension);
+        //如果是avi视频添加到视频待处理表
+        if(mimeType.equals("video/x-msvideo")){
+            MediaProcess mediaProcess = new MediaProcess();
+            BeanUtils.copyProperties(mediaFiles,mediaProcess);
+            mediaProcess.setStatus("1");//未处理
+            mediaProcess.setFailCount(0);//失败次数默认为0
+            int insert = mediaProcessMapper.insert(mediaProcess);
+            return insert > 0;
+        }
+        return true;
     }
 
     @Override
@@ -214,7 +246,7 @@ public class MediaFileServiceImpl extends ServiceImpl<MediaFilesMapper,MediaFile
         //上传分块文件
         String chunkPath = chunkFileFolder + chunk; //分块文件路径
         boolean upload = minioUtil.upload(videoFilesBucketName, chunkPath, localFilePath, null);
-        if(!upload)return RestResponse.validfail(false,"分块文件上传失败");
+        if(!upload)return RestResponse.validfail(false,"分块文件"+chunk+"上传失败");
         return RestResponse.success(true);
     }
 
@@ -225,9 +257,8 @@ public class MediaFileServiceImpl extends ServiceImpl<MediaFilesMapper,MediaFile
         //保存文件信息到数据库
         UploadFileParamsDto uploadFileParamsDto = new UploadFileParamsDto();
         //存储文件名：由（年/月/日/文件md5码）组成
-        String defaultFolderPath = getDefaultFolderPath();
         String extension = fileName.substring(fileName.lastIndexOf(".") + 1);//文件后缀
-        String objectName = defaultFolderPath + fileMd5 + "." + extension;//文件名
+        String objectName = chunkFileFolder + fileMd5 + "." + extension;//文件名
         try {
             //合并分块文件
             boolean merge = minioUtil.merge(videoFilesBucketName, chunkFileFolder, objectName, chunkTotal);
@@ -235,10 +266,10 @@ public class MediaFileServiceImpl extends ServiceImpl<MediaFilesMapper,MediaFile
                 return RestResponse.validfail(false,"分块文件合并失败");
             }
             //获取合并后的文件信息
-    //        File minioFile = minioUtil.getFile(videoFilesBucketName, objectName);
-    //        if (minioFile==null){
-    //            return RestResponse.validfail(false,"分块文件合并失败");
-    //        }
+//            File minioFile = minioUtil.getFile(videoFilesBucketName, objectName);
+//            if (minioFile==null){
+//                return RestResponse.validfail(false,"分块文件合并后获取失败");
+//            }
 //            //校验文件
 //            try (InputStream newFileInputStream = Files.newInputStream(minioFile.toPath())) {
 //                //minio上文件的md5值
@@ -257,7 +288,7 @@ public class MediaFileServiceImpl extends ServiceImpl<MediaFilesMapper,MediaFile
             //由于minio 分片合并后，etag和源文件的md5码值不同，这里不进行校验，知识判断文件是否已经存在
             StatObjectResponse response = minioUtil.exist(videoFilesBucketName, objectName);
             if(response==null){
-                return RestResponse.validfail(false,"分块文件合并失败");
+                return RestResponse.validfail(false,"合并文件获取失败");
             }
             uploadFileParamsDto.setFilename(fileName);
             uploadFileParamsDto.setFileSize(response.size());
@@ -265,7 +296,7 @@ public class MediaFileServiceImpl extends ServiceImpl<MediaFilesMapper,MediaFile
             currentProxy.addMediaFilesToDb(companyId, fileMd5, uploadFileParamsDto, videoFilesBucketName, objectName);
             return RestResponse.success(true);
         } catch (Exception e) {
-            return RestResponse.validfail(false,"分块文件合并失败");
+            return RestResponse.validfail(false,"数据库插入失败");
         } finally {
             //删除分块文件
             minioUtil.removeChunk(videoFilesBucketName, chunkFileFolder, chunkTotal);
