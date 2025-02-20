@@ -1,6 +1,7 @@
 package com.xiaosenho.content.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.xiaosenho.content.model.dto.BindTeachplanMediaDto;
 import com.xiaosenho.content.model.dto.SaveTeachplanDto;
 import com.xiaosenho.content.model.dto.TeachPlanDto;
 import com.xiaosenho.content.model.po.Teachplan;
@@ -46,4 +47,10 @@ public interface TeachplanService extends IService<Teachplan> {
      * @param teachPlanId
      */
     void moveUp(Long teachPlanId);
+
+    /**
+     * 绑定教学计划与媒资文件
+     * @param bindTeachplanMediaDto
+     */
+    void associationMedia(BindTeachplanMediaDto bindTeachplanMediaDto);
 }

@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xiaosenho.base.exception.ServiceException;
 import com.xiaosenho.content.mapper.TeachplanMapper;
 import com.xiaosenho.content.mapper.TeachplanMediaMapper;
+import com.xiaosenho.content.model.dto.BindTeachplanMediaDto;
 import com.xiaosenho.content.model.dto.SaveTeachplanDto;
 import com.xiaosenho.content.model.dto.TeachPlanDto;
 import com.xiaosenho.content.model.po.CourseBase;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -154,6 +156,40 @@ public class TeachplanServiceImpl extends ServiceImpl<TeachplanMapper, Teachplan
         }
     }
 
+    @Transactional
+    @Override
+    public void associationMedia(BindTeachplanMediaDto bindTeachplanMediaDto) {
+        // 获取课程id
+        Long teachplanId = bindTeachplanMediaDto.getTeachplanId();
+        Teachplan teachplan = getOne(new LambdaQueryWrapper<Teachplan>().eq(Teachplan::getId, teachplanId));
+        if(teachplan==null){
+            ServiceException.cast("课程计划不存在");
+        }
+        if(teachplan.getGrade()!= 2){
+            ServiceException.cast("只能绑定小章节");
+        }
+        Long courseId = teachplan.getCourseId();
+        // 删除之前绑定信息
+        int delete = teachplanMediaMapper.delete(new LambdaQueryWrapper<>(TeachplanMedia.class).eq(TeachplanMedia::getTeachplanId, teachplanId));
+        // 插入新的绑定信息
+        TeachplanMedia teachplanMedia = new TeachplanMedia();
+        teachplanMedia.setCourseId(courseId);
+        teachplanMedia.setTeachplanId(teachplanId);
+        teachplanMedia.setMediaId(bindTeachplanMediaDto.getMediaId());
+        teachplanMedia.setMediaFilename(bindTeachplanMediaDto.getFileName());
+        teachplanMedia.setCreateDate(LocalDateTime.now());
+        int insert = teachplanMediaMapper.insert(teachplanMedia);
+        if(insert<=0){
+            ServiceException.cast("绑定失败");
+        }
+    }
+
+    /**
+     * 根据父id和课程id查询下面的子节点总数量
+     * @param parentid
+     * @param courseId
+     * @return
+     */
     public int countByParent(Long parentid, Long courseId){
         LambdaQueryWrapper<Teachplan> queryWrapper = new QueryWrapper<Teachplan>().lambda();
         queryWrapper.eq(Teachplan::getParentid,parentid).eq(Teachplan::getCourseId,courseId);

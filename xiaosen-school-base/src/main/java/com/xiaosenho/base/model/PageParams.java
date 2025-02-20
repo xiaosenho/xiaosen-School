@@ -21,7 +21,12 @@ public class PageParams {
     }
 
     public PageParams(Long pageNo, Long pageSize) {
-        this.pageNo = pageNo;
-        this.pageSize = pageSize;
+        // 添加空值判断防止覆盖默认值
+        if(pageNo != null) {
+            this.pageNo = pageNo;
+        }
+        if(pageSize != null) {
+            this.pageSize = pageSize;
+        }
     }
 }

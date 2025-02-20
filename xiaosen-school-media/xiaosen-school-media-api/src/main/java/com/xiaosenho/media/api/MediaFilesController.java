@@ -41,10 +41,9 @@ public class MediaFilesController {
     @ApiOperation("媒资列表查询接口")
     @PostMapping("/files")
     public PageResult<MediaFiles> list(PageParams pageParams, @RequestBody QueryMediaParamsDto queryMediaParamsDto){
-    //TODO 登录校验
-     Long companyId = 1232141425L;
-     return mediaFileService.queryMediaFiels(companyId,pageParams,queryMediaParamsDto);
-
+        //TODO 登录校验
+         Long companyId = 1232141425L;
+         return mediaFileService.queryMediaFiels(companyId,pageParams,queryMediaParamsDto);
     }
 
     @ApiOperation("媒资上传接口")

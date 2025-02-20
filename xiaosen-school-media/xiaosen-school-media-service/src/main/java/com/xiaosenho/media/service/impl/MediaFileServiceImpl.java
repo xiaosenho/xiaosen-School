@@ -95,7 +95,10 @@ public class MediaFileServiceImpl extends ServiceImpl<MediaFilesMapper,MediaFile
 
         //构建查询条件对象
         LambdaQueryWrapper<MediaFiles> queryWrapper = new LambdaQueryWrapper<>();
-
+        queryWrapper
+                .eq(queryMediaParamsDto.getFileType()!=null, MediaFiles::getFileType, queryMediaParamsDto.getFileType())
+                .eq(queryMediaParamsDto.getAuditStatus()!=null, MediaFiles::getAuditStatus, queryMediaParamsDto.getAuditStatus())
+                .like(queryMediaParamsDto.getFilename()!=null, MediaFiles::getFilename, queryMediaParamsDto.getFilename());
         //分页对象
         Page<MediaFiles> page = new Page<>(pageParams.getPageNo(), pageParams.getPageSize());
         // 查询数据内容获得结果
