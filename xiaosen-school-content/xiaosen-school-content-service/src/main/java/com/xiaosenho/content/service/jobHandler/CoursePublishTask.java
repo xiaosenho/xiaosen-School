@@ -1,6 +1,10 @@
 package com.xiaosenho.content.service.jobHandler;
 
 import com.xiaosenho.base.exception.ServiceException;
+import com.xiaosenho.content.feignclient.CourseIndex;
+import com.xiaosenho.content.feignclient.SearchServiceClient;
+import com.xiaosenho.content.mapper.CoursePublishMapper;
+import com.xiaosenho.content.model.po.CoursePublish;
 import com.xiaosenho.content.service.CoursePublishService;
 import com.xiaosenho.messagesdk.model.po.MqMessage;
 import com.xiaosenho.messagesdk.service.MessageProcessAbstract;
@@ -8,6 +12,7 @@ import com.xiaosenho.messagesdk.service.MqMessageService;
 import com.xxl.job.core.context.XxlJobHelper;
 import com.xxl.job.core.handler.annotation.XxlJob;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -25,6 +30,10 @@ public class CoursePublishTask extends MessageProcessAbstract {
 
     @Resource
     private CoursePublishService coursePublishService;
+    @Resource
+    private SearchServiceClient searchServiceClient;
+    @Resource
+    private CoursePublishMapper coursePublishMapper;
 
     //任务调度入口
     @XxlJob("CoursePublishJobHandler")
@@ -97,12 +106,26 @@ public class CoursePublishTask extends MessageProcessAbstract {
     //保存课程索引信息
     public void saveCourseIndex(MqMessage mqMessage,long courseId){
         log.debug("保存课程索引信息,课程id:{}",courseId);
-        try {
-            TimeUnit.SECONDS.sleep(2);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+        //消息id
+        Long id = mqMessage.getId();
+        //消息处理的service
+        MqMessageService mqMessageService = this.getMqMessageService();
+        //消息幂等性处理
+        int stageThree = mqMessageService.getStageThree(id);
+        if(stageThree >0){
+            log.debug("课程索引已建立直接返回，课程id:{}",courseId);
+            return ;
         }
-
+        // 获取课程发布信息
+        CoursePublish coursePublish = coursePublishMapper.selectById(courseId);
+        CourseIndex courseIndex = new CourseIndex();
+        BeanUtils.copyProperties(coursePublish,courseIndex);
+        Boolean add = searchServiceClient.add(courseIndex);
+        if(!add){
+            ServiceException.cast("课程索引建立失败");
+        }
+        // 保存第三阶段状态
+        mqMessageService.completedStageThree(id);
     }
 
 }
