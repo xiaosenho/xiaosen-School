@@ -5,7 +5,7 @@ import lombok.Getter;
 /**
  * @author: 作者
  * @create: 2025-02-19 12:09
- * @Description:
+ * @Description: 审核状态
  */
 @Getter
 public enum CourseAuditStatusEnum {

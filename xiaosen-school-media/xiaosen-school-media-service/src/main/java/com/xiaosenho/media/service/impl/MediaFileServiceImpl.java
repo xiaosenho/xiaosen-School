@@ -1,12 +1,10 @@
 package com.xiaosenho.media.service.impl;
 
-import com.alibaba.nacos.api.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.j256.simplemagic.ContentInfo;
 import com.j256.simplemagic.ContentInfoUtil;
-import com.xiaosenho.base.constant.CourseAuditStatusEnum;
 import com.xiaosenho.base.constant.MediaTypeEnum;
 import com.xiaosenho.base.constant.ResourceStatusEnum;
 import com.xiaosenho.base.exception.ServiceException;
@@ -26,6 +24,7 @@ import io.minio.ObjectWriteResponse;
 import io.minio.StatObjectResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -96,9 +95,9 @@ public class MediaFileServiceImpl extends ServiceImpl<MediaFilesMapper,MediaFile
         //构建查询条件对象
         LambdaQueryWrapper<MediaFiles> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper
-                .eq(queryMediaParamsDto.getFileType()!=null, MediaFiles::getFileType, queryMediaParamsDto.getFileType())
-                .eq(queryMediaParamsDto.getAuditStatus()!=null, MediaFiles::getAuditStatus, queryMediaParamsDto.getAuditStatus())
-                .like(queryMediaParamsDto.getFilename()!=null, MediaFiles::getFilename, queryMediaParamsDto.getFilename());
+                .eq(StringUtils.isNotEmpty(queryMediaParamsDto.getFileType()), MediaFiles::getFileType, queryMediaParamsDto.getFileType())
+                .eq(StringUtils.isNotEmpty(queryMediaParamsDto.getAuditStatus()), MediaFiles::getAuditStatus, queryMediaParamsDto.getAuditStatus())
+                .like(StringUtils.isNotEmpty(queryMediaParamsDto.getFilename()), MediaFiles::getFilename, queryMediaParamsDto.getFilename());
         //分页对象
         Page<MediaFiles> page = new Page<>(pageParams.getPageNo(), pageParams.getPageSize());
         // 查询数据内容获得结果
@@ -114,7 +113,7 @@ public class MediaFileServiceImpl extends ServiceImpl<MediaFilesMapper,MediaFile
     }
 
     @Override
-    public UploadFileResultDto uploadFile(Long companyId, UploadFileParamsDto uploadFileParamsDto, String filepath) {
+    public UploadFileResultDto uploadFile(Long companyId, UploadFileParamsDto uploadFileParamsDto, String filepath, String objectName) {
         //把文件上传到minio
         String filename = uploadFileParamsDto.getFilename();
         String extension = filename.substring(filename.lastIndexOf(".") + 1);//文件后缀
@@ -127,7 +126,9 @@ public class MediaFileServiceImpl extends ServiceImpl<MediaFilesMapper,MediaFile
             ServiceException.cast("文件不存在");
         }
         String fileMd5 = getFileMd5(file);
-        String objectName = defaultFolderPath + fileMd5 + "." + extension;
+        if(StringUtils.isEmpty(objectName)){ //没有指定文件名目录的话自动生成
+            objectName = defaultFolderPath + fileMd5 + "." + extension;
+        }
 
         //查询数据库中是否存在相同md5的文件
         MediaFiles mediaFiles = mediaFilesMapper.selectById(fileMd5);
@@ -178,7 +179,8 @@ public class MediaFileServiceImpl extends ServiceImpl<MediaFilesMapper,MediaFile
         mediaFiles.setFilePath(objectName);
         mediaFiles.setBucket(bucket);
         mediaFiles.setCreateDate(LocalDateTime.now());
-        mediaFiles.setAuditStatus(CourseAuditStatusEnum.SUBMITTED.getCode());//已提交
+        //TODO 文件状态魔法值
+        mediaFiles.setAuditStatus("002003");//已提交
         mediaFiles.setStatus(ResourceStatusEnum.ACTIVE.getCode());//资源已启用
         int insert = mediaFilesMapper.insert(mediaFiles);
         if (insert < 0) {

@@ -1,19 +1,57 @@
+#server:
+#  servlet:
+#    #服务api根路径
+#    context-path: /content
+#  port: 63040
 #微服务配置
 spring:
+  profiles:
+    active: dev #环境名
   application:
-    name: content-api
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://106.54.193.108:3306/xs-school-content?serverTimezone=UTC&userUnicode=true&useSSL=false&
-    username: xiaosenho
-    password: 123456
-# 日志文件配置路径
-logging:
-  config: classpath:log4j2-dev.xml
-swagger:
-  title: "学成在线内容管理系统"
-  description: "内容系统管理系统对课程相关信息进行管理"
-  base-package: com.xiaosenho.content
-  enabled: true
-  version: 1.0.0
+    name: content-api #服务名
+  cloud:
+    nacos:
+      server-addr: 106.54.193.108:8848
+      discovery: #服务注册与发现
+        namespace: dev
+        group: xiaosen-school-project
+      config: #配置中心
+        #各配置文件的优先级：项目应用名配置文件 > 扩展配置文件  > 共享配置文件 > 本地配置文件
+        #私有配置文件，配置文件dataid由 服务名+${spring.profiles.active}(环境名)+file-extension组成
+        namespace: dev
+        group: xiaosen-school-project
+        file-extension: yaml
+        refresh-enabled: true
+        shared-configs: #共享配置文件
+          - data-id: swagger-${spring.profiles.active}.yaml
+            group: xiaosen-school-common
+            refresh: true
+          - data-id: logging-${spring.profiles.active}.yaml
+            group: xiaosen-school-common
+            refresh: true
+          - data-id: freemarker-config-${spring.profiles.active}.yaml
+            group: xiaosen-school-common
+            refresh: true
+          - data-id: feign-${spring.profiles.active}.yaml
+            group: xiaosen-school-common
+            refresh: true
+        extension-configs: #引用其它配置文件
+          - data-id: content-service-${spring.profiles.active}.yaml
+            group: xiaosen-school-project
+            refresh: true
 
+#  datasource:
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:mysql://106.54.193.108:3306/xs-school-content?serverTimezone=UTC&userUnicode=true&useSSL=false&
+#    username: xiaosenho
+#    password: 123456
+
+# 日志文件配置路径
+#logging:
+#  config: classpath:log4j2-dev.xml
+#swagger:
+#  title: "小森课堂管理系统接口文档"
+#  description: "小森课堂管理系统接口文档"
+#  base-package: com.xiaosenho
+#  enabled: true
+#  version: 1.0.0

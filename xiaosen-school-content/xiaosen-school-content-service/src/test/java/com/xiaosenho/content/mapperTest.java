@@ -13,6 +13,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -39,5 +41,37 @@ public class mapperTest {
     public void test2(){
         List<TeachPlanDto> teachPlanDtos = teachplanMapper.selectTreeNodes(117L);
         System.out.println(teachPlanDtos);
+    }
+
+    public List<List<Integer>> fourSum(int[] nums, int target) {
+        Arrays.sort(nums);
+        int size = nums.length;
+        List<List<Integer>> result = new ArrayList();
+        for(int i = 0; i < size-3; i++){
+            if(i>0&&nums[i]==nums[i-1])continue;
+            for(int j = i+1; j < size-2; j++){
+                if(j>i+1&&nums[j]==nums[j-1])continue;
+                int sum = nums[i]+nums[j];
+                int a = j+1;
+                int b = size-1;
+                while(a<b){
+                    sum += nums[a]+nums[b];
+                    if(sum>target){//右指针左移
+                        while(a<b && nums[b]==nums[--b]);
+                    }else if(sum<target){//左指针右移
+                        while(a<b && nums[a]==nums[++a]);
+                    }else{
+                        result.add(Arrays.asList(nums[i],nums[j],nums[a],nums[b]));
+                        while(a<b && nums[b]==nums[--b]);
+                        while(a<b && nums[a]==nums[++a]);
+                    }
+                }
+            }
+        }
+        return result;
+    }
+    @Test
+    public void test3(){
+        System.out.println(fourSum(new int[]{2,2,2,2,2},8));
     }
 }
