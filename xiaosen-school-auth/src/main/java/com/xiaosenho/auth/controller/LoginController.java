@@ -4,6 +4,7 @@ import com.xiaosenho.ucenter.mapper.XcUserMapper;
 import com.xiaosenho.ucenter.model.po.XcUser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,6 +31,7 @@ public class LoginController {
 
 
     @RequestMapping("/user/{id}")
+    @PreAuthorize("hasAuthority('p1')") //用户p1权限
     public XcUser getuser(@PathVariable("id") String id) {
         XcUser xcUser = userMapper.selectById(id);
         return xcUser;
@@ -44,7 +46,5 @@ public class LoginController {
     public String r2() {
         return "访问r2资源";
     }
-
-
 
 }

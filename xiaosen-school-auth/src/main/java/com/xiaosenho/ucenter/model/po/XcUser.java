@@ -3,6 +3,7 @@ package com.xiaosenho.ucenter.model.po;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.beans.Transient;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
