@@ -35,7 +35,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 //        manager.createUser(User.withUsername("lisi").password("456").authorities("p2").build());
 //        return manager;
 //    }
+    @Autowired
+    DaoAuthenticationProviderCustom daoAuthenticationProviderCustom;
 
+    //指定自定义的DaoAuthenticationProvider，屏蔽密码比对
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.authenticationProvider(daoAuthenticationProviderCustom);
+    }
     @Bean
     public PasswordEncoder passwordEncoder() {
 //        //密码为明文方式

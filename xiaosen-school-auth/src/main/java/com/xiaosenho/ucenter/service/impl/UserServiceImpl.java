@@ -3,7 +3,12 @@ package com.xiaosenho.ucenter.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.xiaosenho.ucenter.mapper.XcUserMapper;
+import com.xiaosenho.ucenter.model.dto.AuthParamsDto;
+import com.xiaosenho.ucenter.model.dto.XcUserExt;
 import com.xiaosenho.ucenter.model.po.XcUser;
+import com.xiaosenho.ucenter.service.AuthService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -19,27 +24,33 @@ import javax.annotation.Resource;
  * @Description:
  */
 @Service
+@Slf4j
 public class UserServiceImpl implements UserDetailsService {
 
     @Resource
     private XcUserMapper xcUserMapper;
+    @Resource
+    private ApplicationContext context;
 
     //实现UserDetailsService接口方法，根据用户名查询数据库用户信息
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // 根据用户名查询数据库
-        XcUser xcUser = xcUserMapper.selectOne(new LambdaQueryWrapper<XcUser>().eq(XcUser::getUsername, username));
-        // 如果查询不到，返回空
-        if (xcUser == null) {
-            return null;
+    public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
+        // 传入数据解析成AuthParamsDto
+        AuthParamsDto authParamsDto = null;
+        try {
+            authParamsDto = JSON.parseObject(s, AuthParamsDto.class);
+        } catch (Exception e) {
+            log.info("认证请求不符合项目要求:{}",s);
+            throw new RuntimeException("认证请求数据格式不对");
         }
-        // 获取密码，由Spring Security框架调用，自动进行密码比对
-        String password = xcUser.getPassword();
-        // TODO 获取权限
-        // 扩展UserDetails对象，封装用户信息
-        xcUser.setPassword(null);
-        String json = JSON.toJSON(xcUser).toString();
+        // 根据认证方式动态注入具体实现bean
+        String authType = authParamsDto.getAuthType()+"_authservice";
+        AuthService service = context.getBean(authType,AuthService.class);
+        XcUserExt userExt = service.excute(authParamsDto);
+
         // 封装成UserDetails对象返回
-        return User.withUsername(json).password(password).authorities("p1").build();
+        userExt.setPassword(null);
+        String json = JSON.toJSON(userExt).toString();
+        return User.withUsername(json).password(userExt.getPassword()).authorities("p1").build();
     }
 }
