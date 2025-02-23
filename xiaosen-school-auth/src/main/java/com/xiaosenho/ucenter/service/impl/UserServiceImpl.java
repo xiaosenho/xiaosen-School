@@ -49,8 +49,9 @@ public class UserServiceImpl implements UserDetailsService {
         XcUserExt userExt = service.excute(authParamsDto);
 
         // 封装成UserDetails对象返回
+        String password = userExt.getPassword();
         userExt.setPassword(null);
         String json = JSON.toJSON(userExt).toString();
-        return User.withUsername(json).password(userExt.getPassword()).authorities("p1").build();
+        return User.withUsername(json).password(password).authorities("p1").build();
     }
 }
