@@ -26,7 +26,6 @@ public class CheckCodeController {
     @Resource(name = "PicCheckCodeService")
     private CheckCodeService picCheckCodeService;
 
-
     @ApiOperation(value="生成验证信息", notes="生成验证信息")
     @PostMapping(value = "/pic")
     public CheckCodeResultDto generatePicCheckCode(CheckCodeParamsDto checkCodeParamsDto){

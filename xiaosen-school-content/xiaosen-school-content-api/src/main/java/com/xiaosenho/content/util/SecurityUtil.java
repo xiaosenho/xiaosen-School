@@ -1,4 +1,4 @@
-package com.xiaosenho.base.utils;
+package com.xiaosenho.content.util;
 
 /**
  * @author: 作者
