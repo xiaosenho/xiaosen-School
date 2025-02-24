@@ -14,9 +14,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @FeignClient(value = "content-api",fallbackFactory = ContentServiceClientFallbackFactory.class)
 public interface ContentServiceClient {
-
+    /**
+     * 根据课程id查询课程发布信息
+     * @param courseId
+     * @return
+     */
     @ResponseBody
-    @GetMapping("/content/r/coursepublish/{courseId}")
+    @GetMapping("/content/coursepublish/{courseId}")
     public CoursePublish getCoursepublish(@PathVariable("courseId") Long courseId);
 
 }

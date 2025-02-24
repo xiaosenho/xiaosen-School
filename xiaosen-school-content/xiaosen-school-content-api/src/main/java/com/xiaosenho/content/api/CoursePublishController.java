@@ -1,6 +1,7 @@
 package com.xiaosenho.content.api;
 
 import com.xiaosenho.content.model.dto.CoursePreviewDto;
+import com.xiaosenho.content.model.po.CoursePublish;
 import com.xiaosenho.content.service.CoursePublishService;
 import com.xiaosenho.content.util.SecurityUtil;
 import io.swagger.annotations.Api;
@@ -27,8 +28,7 @@ public class CoursePublishController {
 
 
     /**
-     * 课程预览接口
-     *
+     * 课程预览接口,根据课程id动态渲染到预览页面中，使用模板引擎生成
      * @param courseId
      * @return
      */
@@ -74,5 +74,12 @@ public class CoursePublishController {
             companyId = Long.valueOf(user.getCompanyId());
         }
         coursePublishService.publish(companyId,courseId);
+    }
+
+    @ApiOperation("根据课程id查询课程发布信息")
+    @ResponseBody
+    @GetMapping("coursepublish/{courseId}")
+    public CoursePublish getCoursepublish(@PathVariable("courseId") Long courseId){
+        return coursePublishService.getById(courseId);
     }
 }
