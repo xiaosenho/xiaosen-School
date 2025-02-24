@@ -2,6 +2,7 @@ package com.xiaosenho.content.api;
 
 import com.xiaosenho.content.model.dto.CoursePreviewDto;
 import com.xiaosenho.content.service.CoursePublishService;
+import com.xiaosenho.content.util.SecurityUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,8 +54,12 @@ public class CoursePublishController {
     @ResponseBody
     @PostMapping("/courseaudit/commit/{courseId}")
     public void commitAudit(@PathVariable("courseId") Long courseId) {
-        //TODO 登录功能，机构id获取
-        long companyId = 1232141425L;
+        //机构id获取
+        SecurityUtil.XcUser user = SecurityUtil.getUser();
+        Long companyId = null;
+        if(user != null){
+            companyId = Long.valueOf(user.getCompanyId());
+        }
         coursePublishService.commitAudit(companyId,courseId);
     }
 
@@ -62,8 +67,12 @@ public class CoursePublishController {
     @ResponseBody
     @PostMapping("/coursepublish/{courseId}")
     public void coursepublish(@PathVariable("courseId") Long courseId) {
-        //TODO 登录功能，机构id获取
-        long companyId = 1232141425L;
+        //机构id获取
+        SecurityUtil.XcUser user = SecurityUtil.getUser();
+        Long companyId = null;
+        if(user != null){
+            companyId = Long.valueOf(user.getCompanyId());
+        }
         coursePublishService.publish(companyId,courseId);
     }
 }

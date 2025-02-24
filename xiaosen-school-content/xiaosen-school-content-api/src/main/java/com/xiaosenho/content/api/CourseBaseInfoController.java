@@ -7,9 +7,11 @@ import com.xiaosenho.content.model.dto.*;
 import com.xiaosenho.content.model.po.CourseBase;
 import com.xiaosenho.content.model.po.CourseCategory;
 import com.xiaosenho.content.service.CourseBaseInfoService;
+import com.xiaosenho.content.util.SecurityUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -30,15 +32,26 @@ public class CourseBaseInfoController {
     private CourseBaseInfoService courseBaseInfoService;
     @RequestMapping("/course/list")
     @ApiOperation("课程分页查询")
+    @PreAuthorize("hasAuthority('xc_teachmanager_course')") //指定权限，只有有该权限的用户才能访问
     public PageResult<CourseBase> list(PageParams pageParams, @RequestBody(required = false) QueryCourseParamsDto queryCourseParamsDto){
-        return courseBaseInfoService.queryCourseBaseList(pageParams, queryCourseParamsDto);
+        //机构id获取
+        SecurityUtil.XcUser user = SecurityUtil.getUser();
+        Long companyId = -1L;//占位符
+        if(user != null){ //细粒度授权，用户只能查询自己机构的课程
+            companyId = Long.valueOf(user.getCompanyId());
+        }
+        return courseBaseInfoService.queryCourseBaseList(companyId, pageParams, queryCourseParamsDto);
     }
 
     @PostMapping("/course")
     @ApiOperation("新增课程")
     public CourseBaseInfoDto save(@RequestBody @Validated(ValidationGroups.Insert.class) AddCourseBaseInfoDto addCourseBaseInfoDto){
-        //TODO 登录功能，机构id获取
-        long companyId = 1232141425L;
+        //机构id获取
+        SecurityUtil.XcUser user = SecurityUtil.getUser();
+        Long companyId = null;
+        if(user != null){
+            companyId = Long.valueOf(user.getCompanyId());
+        }
         return courseBaseInfoService.createCourseBase(companyId,addCourseBaseInfoDto);
     }
 
@@ -53,8 +66,12 @@ public class CourseBaseInfoController {
     @PutMapping("/course")
     @ApiOperation(value = "修改课程")
     public CourseBaseInfoDto updateCourse(@RequestBody EditCourseBaseInfoDto editCourseBaseInfoDto){
-        //TODO 登录功能，机构id获取
-        long companyId = 1232141425L;
+        //机构id获取
+        SecurityUtil.XcUser user = SecurityUtil.getUser();
+        Long companyId = null;
+        if(user != null){
+            companyId = Long.valueOf(user.getCompanyId());
+        }
         return courseBaseInfoService.updateCourseBase(companyId,editCourseBaseInfoDto);
     }
 
