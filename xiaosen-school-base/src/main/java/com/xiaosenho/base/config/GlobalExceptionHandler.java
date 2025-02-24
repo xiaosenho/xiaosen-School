@@ -36,6 +36,10 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public RestExceptionResponse exception(Exception e) {
         log.error("【系统异常】{}",e.getMessage(),e);
+        e.printStackTrace();
+        if(e.getMessage().equals("不允许访问")){
+            return new RestExceptionResponse("没有操作此功能的权限");
+        }
         return new RestExceptionResponse(CommonError.UNKOWN_ERROR.getErrMessage());
     }
 

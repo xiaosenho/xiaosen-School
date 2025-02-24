@@ -11,12 +11,10 @@ import com.xiaosenho.media.model.po.MediaFiles;
 import com.xiaosenho.media.service.MediaFileService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.awt.*;
@@ -48,7 +46,8 @@ public class MediaFilesController {
 
     @ApiOperation("媒资上传接口")
     @PostMapping(value = "/upload/coursefile",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public UploadFileResultDto upload(@RequestPart("filedata") MultipartFile multipartFile){
+    public UploadFileResultDto upload(@RequestPart("filedata") MultipartFile multipartFile,
+                                      @RequestParam(value= "objectName",required=false) String objectName){
         //TODO 登录校验
         Long companyId = 1232141425L;
         try {
@@ -60,10 +59,12 @@ public class MediaFilesController {
             //文件信息预处理
             UploadFileParamsDto uploadFileParamsDto = new UploadFileParamsDto();
             uploadFileParamsDto.setFilename(multipartFile.getOriginalFilename());
-            uploadFileParamsDto.setFileType(MediaTypeEnum.IMAGE.getCode());//图片格式
+            if(StringUtils.isEmpty(objectName)){
+                uploadFileParamsDto.setFileType(MediaTypeEnum.IMAGE.getCode());//图片格式
+            }else uploadFileParamsDto.setFileType(MediaTypeEnum.OTHER.getCode());//其它格式
             uploadFileParamsDto.setFileSize(multipartFile.getSize());
             //调用业务逻辑方法
-            return mediaFileService.uploadFile(companyId,uploadFileParamsDto,localFilePath);
+            return mediaFileService.uploadFile(companyId,uploadFileParamsDto,localFilePath,objectName);
         } catch (IOException e) {
             ServiceException.cast("上传文件失败");
         }

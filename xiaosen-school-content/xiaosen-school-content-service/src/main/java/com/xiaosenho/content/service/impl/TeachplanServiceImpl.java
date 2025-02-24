@@ -70,7 +70,7 @@ public class TeachplanServiceImpl extends ServiceImpl<TeachplanMapper, Teachplan
         if(teachPlanDto.getId()==null){
             Teachplan teachplan = new Teachplan();
             BeanUtils.copyProperties(teachPlanDto,teachplan);
-            //添加默认向后,获取同级课程计划的最大排序号,即前面的元素个数
+        //添加默认向后,获取同级课程计划的最大排序号,即前面的元素个数
             if(teachPlanDto.getParentid()==null){
                 ServiceException.cast("父节点为空，无法保存");
             }

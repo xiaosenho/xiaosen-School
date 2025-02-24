@@ -15,7 +15,6 @@ import com.xiaosenho.content.mapper.TeachplanMediaMapper;
 import com.xiaosenho.content.model.dto.*;
 import com.xiaosenho.content.model.po.*;
 import com.xiaosenho.content.service.CourseBaseInfoService;
-import com.xiaosenho.content.service.CourseCategoryService;
 import com.xiaosenho.content.service.CourseTeacherService;
 import com.xiaosenho.content.service.TeachplanService;
 import org.apache.commons.lang3.StringUtils;
@@ -48,11 +47,15 @@ public class CourseBaseInfoServiceImpl extends ServiceImpl<CourseBaseMapper,Cour
 
     @Transactional
     @Override
-    public PageResult<CourseBase> queryCourseBaseList(PageParams pageParams, QueryCourseParamsDto queryCourseParamsDto) {
+    public PageResult<CourseBase> queryCourseBaseList(Long companyId, PageParams pageParams, QueryCourseParamsDto queryCourseParamsDto) {
         LambdaQueryWrapper<CourseBase> lambdaQueryWrapper = new QueryWrapper<CourseBase>().lambda();
-        lambdaQueryWrapper.eq(StringUtils.isNotEmpty(queryCourseParamsDto.getAuditStatus()),CourseBase::getAuditStatus,queryCourseParamsDto.getAuditStatus())
+        lambdaQueryWrapper
+                .eq(StringUtils.isNotEmpty(queryCourseParamsDto.getAuditStatus()),CourseBase::getAuditStatus,queryCourseParamsDto.getAuditStatus())
                 .like(StringUtils.isNotEmpty(queryCourseParamsDto.getCourseName()),CourseBase::getName,queryCourseParamsDto.getCourseName())
                 .eq(StringUtils.isNotEmpty(queryCourseParamsDto.getPublishStatus()),CourseBase::getStatus,queryCourseParamsDto.getPublishStatus());
+        if(companyId!=null){
+            lambdaQueryWrapper.eq(CourseBase::getCompanyId,companyId);
+        }
         IPage<CourseBase> page = new Page<>(pageParams.getPageNo(), pageParams.getPageSize());
         IPage<CourseBase> courseBaseIPage = page(page, lambdaQueryWrapper);
 

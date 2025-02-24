@@ -6,3 +6,10 @@ Content-Type: application/json
   "courseName": "java",
   "publishStatus": ""
 }
+
+###
+POST http://localhost:63040/content/courseaudit/commit/129
+
+###
+GET http://localhost:63040/content/course/2
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsieGlhb3Nlbi1zY2hvb2wiXSwidXNlcl9uYW1lIjoiemhhbmdzYW4iLCJzY29wZSI6WyJhbGwiXSwiZXhwIjoxNzQwMjk2MjUwLCJhdXRob3JpdGllcyI6WyJwMSJdLCJqdGkiOiI2ZTgwMDUyOS1lZTc5LTQ0YjUtOTQ4Ny1kNjJhY2RkOGIxMDQiLCJjbGllbnRfaWQiOiJYc1dlYkFwcCJ9.YUShovghAJGq2YvLPj6f3xRJLU6t_XS-a46v3OPUfQM

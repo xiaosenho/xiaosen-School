@@ -5,19 +5,17 @@ import com.xiaosenho.base.model.PageParams;
 import com.xiaosenho.base.model.PageResult;
 import com.xiaosenho.content.model.dto.*;
 import com.xiaosenho.content.model.po.CourseBase;
-import com.xiaosenho.content.model.po.CourseCategory;
-import org.springframework.web.bind.annotation.RequestBody;
-
-import java.util.List;
 
 public interface CourseBaseInfoService extends IService<CourseBase> {
     /**
      * 课程信息分页查询
+     *
+     * @param companyId
      * @param pageParams
      * @param queryCourseParamsDto
      * @return
      */
-    public PageResult<CourseBase> queryCourseBaseList(PageParams pageParams, QueryCourseParamsDto queryCourseParamsDto);
+    public PageResult<CourseBase> queryCourseBaseList(Long companyId, PageParams pageParams, QueryCourseParamsDto queryCourseParamsDto);
 
     /**
      * 添加课程基本信息
