@@ -21,4 +21,6 @@ public interface XcCourseTablesService extends IService<XcCourseTables> {
      * @return
      */
     XcCourseTablesDto getLearnstatus(String userId, Long courseId);
+
+    boolean addCourseTables(String choosecourseId);
 }

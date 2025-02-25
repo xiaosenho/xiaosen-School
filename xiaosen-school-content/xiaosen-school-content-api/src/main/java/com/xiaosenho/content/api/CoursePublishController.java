@@ -1,11 +1,15 @@
 package com.xiaosenho.content.api;
 
+import com.alibaba.fastjson.JSON;
+import com.xiaosenho.content.model.dto.CourseBaseInfoDto;
 import com.xiaosenho.content.model.dto.CoursePreviewDto;
+import com.xiaosenho.content.model.dto.TeachPlanDto;
 import com.xiaosenho.content.model.po.CoursePublish;
 import com.xiaosenho.content.service.CoursePublishService;
 import com.xiaosenho.content.util.SecurityUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +17,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
+
+import java.util.List;
 
 /**
  * @author: 作者
@@ -82,4 +88,26 @@ public class CoursePublishController {
     public CoursePublish getCoursepublish(@PathVariable("courseId") Long courseId){
         return coursePublishService.getById(courseId);
     }
+
+    @ApiOperation("获取课程发布信息")
+    @ResponseBody
+    @GetMapping("/course/whole/{courseId}")
+    public CoursePreviewDto getCoursePublish(@PathVariable("courseId") Long courseId) {
+        //查询课程发布信息
+        CoursePublish coursePublish = coursePublishService.getById(courseId);
+        if (coursePublish == null) {
+            return new CoursePreviewDto();
+        }
+
+        //课程基本信息
+        CourseBaseInfoDto courseBase = new CourseBaseInfoDto();
+        BeanUtils.copyProperties(coursePublish, courseBase);
+        //课程计划
+        List<TeachPlanDto> teachplans = JSON.parseArray(coursePublish.getTeachplan(), TeachPlanDto.class);
+        CoursePreviewDto coursePreviewInfo = new CoursePreviewDto();
+        coursePreviewInfo.setCourseBase(courseBase);
+        coursePreviewInfo.setTeachplans(teachplans);
+        return coursePreviewInfo;
+    }
+
 }
