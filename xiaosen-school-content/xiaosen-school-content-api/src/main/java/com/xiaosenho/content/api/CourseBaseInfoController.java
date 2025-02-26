@@ -11,6 +11,7 @@ import com.xiaosenho.content.util.SecurityUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
@@ -38,7 +39,9 @@ public class CourseBaseInfoController {
         SecurityUtil.XcUser user = SecurityUtil.getUser();
         Long companyId = -1L;//占位符
         if(user != null){ //细粒度授权，用户只能查询自己机构的课程
-            companyId = Long.valueOf(user.getCompanyId());
+            if(StringUtils.isNotEmpty(user.getCompanyId())){
+                companyId = Long.valueOf(user.getCompanyId());
+            }
         }
         return courseBaseInfoService.queryCourseBaseList(companyId, pageParams, queryCourseParamsDto);
     }
